@@ -2,17 +2,21 @@
 
 from faker import Faker
 import random
+from models import User, Game, Review, Base  # Import Base here
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from models import Game, Review, User
-
 if __name__ == '__main__':
     engine = create_engine('sqlite:///many_to_many.db')
+
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
+
     Session = sessionmaker(bind=engine)
     session = Session()
 
+    # Clear old data
     session.query(Game).delete()
     session.query(Review).delete()
     session.query(User).delete()
@@ -34,12 +38,9 @@ if __name__ == '__main__':
             price=random.randint(5, 60)
         )
 
-        # add and commit individually to get IDs back
         session.add(game)
         session.commit()
-
         games.append(game)
-
 
     users = []
     for i in range(25):
@@ -49,9 +50,7 @@ if __name__ == '__main__':
 
         session.add(user)
         session.commit()
-
         users.append(user)
-
 
     reviews = []
     for game in games:
